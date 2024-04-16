@@ -1,0 +1,15 @@
+email-validator
+
+Flask-Bcrypt
+Flask-Login
+Flask-Mail
+Flask-WTF
+Jinja2
+pygal
+flask-socketio
+itsdangerous
+Werkzeug==2.1.0
+Flask
+SQLAlchemy
+flask-restx
+Flask-SQLAlchemy==2.5.0
