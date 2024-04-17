@@ -10,7 +10,6 @@ from flask_cors import cross_origin
 auth = Blueprint("auth", __name__, template_folder="templates", static_folder="static")
 
 @auth.route("/register", methods=["POST", "GET"])
-@cross_origin(supports_credentials=True)
 def register():
     if current_user.is_authenticated:
         if current_user.student:
@@ -35,69 +34,6 @@ def register():
         login_user(user, remember=False)
         return redirect(url_for('student.home') if user.student else url_for('teacher.home'))
     return render_template("register.html", form=form, title="Register")
-
-# @auth.route("/api/register", methods=["POST"])
-# def api_register():
-#     if request.json:
-#         name = request.json.get('name')
-#         email = request.json.get('email')
-#         password = request.json.get('password')
-#         acc_type = request.json.get('acc_type')
-        
-#         if User.query.filter_by(email=email).first():
-#             return jsonify({"error": "Email already registered"}), 409
-        
-#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-#         user = User(name=name, email=email, password=hashed_password)
-        
-#         if acc_type == "Student":
-#             student = Student(user=user)
-#             db.session.add(student)
-#         elif acc_type == "Teacher":
-#             teacher = Teacher(user=user)
-#             db.session.add(teacher)
-#         else:
-#             return jsonify({"error": "Invalid account type"}), 400
-
-#         db.session.add(user)
-#         db.session.commit()
-        
-#         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
-
-# @auth.route("/api/register", methods=["POST"])
-# @cross_origin(supports_credentials=True)
-# def api_register():
-#     if request.json:
-#         name = request.json.get('name')
-#         email = request.json.get('email')
-#         password = request.json.get('password')
-#         acc_type = request.json.get('acc_type')
-        
-#         # Check if the user with the provided email is already registered
-#         user = User.query.filter_by(email=email).first()
-#         if user:
-#             # If user is registered, log them in
-#             login_user(user, remember=False)
-#             return jsonify({"message": "User logged in successfully", "user_id": user.id}), 200
-        
-#         # If user is not registered, proceed with registration
-#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-#         user = User(name=name, email=email, password=hashed_password)
-        
-#         if acc_type == "Student":
-#             student = Student(user=user)
-#             db.session.add(student)
-#         elif acc_type == "Teacher":
-#             teacher = Teacher(user=user)
-#             db.session.add(teacher)
-#         else:
-#             return jsonify({"error": "Invalid account type"}), 400
-
-#         db.session.add(user)
-#         db.session.commit()
-        
-#         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
-
 
 @auth.route("/login", methods=["POST", "GET"])
 def login():

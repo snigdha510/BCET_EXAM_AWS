@@ -7,9 +7,11 @@ from pariksha.models import User, Student, Teacher
 from pariksha.auth.utils import send_reset_email, send_verification_email
 from pariksha import bcrypt, db
 from urllib.parse import urlparse, urljoin
-from flask_cors import cross_origin
+from flask_cors import cross_origin, CORS
 
 main = Blueprint("main",__name__,template_folder="templates",static_folder="static")
+
+CORS(main, supports_credentials=True) #Registering CORS
 
 @main.route("/")
 def welcome():
@@ -21,8 +23,7 @@ def welcome():
         else:
             return redirect(url_for('teacher.home'))
         
-@main.route("/externalregister", methods=["POST", "OPTIONS"])
-@cross_origin(headers=["Content-Type"])
+@main.route("/externalregister", methods=["POST"])
 def externalregister():
     if request.json:
         name = request.json.get('name')
