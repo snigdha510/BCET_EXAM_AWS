@@ -23,7 +23,7 @@ def welcome():
         
 @main.route("/externalregister", methods=["POST", "OPTIONS"])
 @cross_origin(headers=["Content-Type"])
-def api_register():
+def externalregister():
     if request.json:
         name = request.json.get('name')
         email = request.json.get('email')
