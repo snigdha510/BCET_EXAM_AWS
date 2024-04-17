@@ -40,13 +40,14 @@ def create_app(config_class = Config):
     #extra blueprint to be removed before production 
     from pariksha.extra.routes import extra
     app.register_blueprint(extra)
-    CORS(main)
+   
 
     
     
     app.register_blueprint(student)
     app.register_blueprint(teacher)
     app.register_blueprint(main)
+    CORS(main)
     app.register_blueprint(auth)
     
     
