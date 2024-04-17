@@ -9,32 +9,32 @@ from flask_cors import cross_origin
 
 auth = Blueprint("auth", __name__, template_folder="templates", static_folder="static")
 
-# @auth.route("/register", methods=["POST", "GET"])
-# @cross_origin(supports_credentials=True)
-# def register():
-#     if current_user.is_authenticated:
-#         if current_user.student:
-#             return redirect(url_for('student.home'))
-#         else:
-#             return redirect(url_for('teacher.home'))
+@auth.route("/register", methods=["POST", "GET"])
+@cross_origin(supports_credentials=True)
+def register():
+    if current_user.is_authenticated:
+        if current_user.student:
+            return redirect(url_for('student.home'))
+        else:
+            return redirect(url_for('teacher.home'))
     
-#     form = RegistrationForm()
-#     if form.validate_on_submit():
-#         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-#         user = User(name=form.name.data, email=form.email.data, password=hashed_password)
-#         if form.acc_type.data == "Student":
-#             student = Student(user=user)
-#             db.session.add(user)
-#             db.session.add(student)
-#         else:
-#             teacher = Teacher(user=user)
-#             db.session.add(user)
-#             db.session.add(teacher)
-#         db.session.commit()
-#         flash("Account created successfully!", 'success')
-#         login_user(user, remember=False)
-#         return redirect(url_for('student.home') if user.student else url_for('teacher.home'))
-#     return render_template("register.html", form=form, title="Register")
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+        user = User(name=form.name.data, email=form.email.data, password=hashed_password)
+        if form.acc_type.data == "Student":
+            student = Student(user=user)
+            db.session.add(user)
+            db.session.add(student)
+        else:
+            teacher = Teacher(user=user)
+            db.session.add(user)
+            db.session.add(teacher)
+        db.session.commit()
+        flash("Account created successfully!", 'success')
+        login_user(user, remember=False)
+        return redirect(url_for('student.home') if user.student else url_for('teacher.home'))
+    return render_template("register.html", form=form, title="Register")
 
 # @auth.route("/api/register", methods=["POST"])
 # def api_register():

@@ -7,6 +7,7 @@ from pariksha.student.utils import bar_graph
 import copy
 from sqlalchemy import select
 import requests
+from sqlalchemy.sql import text
 
 student = Blueprint("student", __name__, url_prefix="/student", template_folder="templates", static_folder="static")
 
@@ -196,7 +197,7 @@ def view_result():
         return redirect(url_for('teacher.home'))
     student = current_user.student
     quiz_submitted_query = tuple(
-        db.session.execute(f'SELECT * FROM submits_quiz WHERE student_id = {student.id};'))
+        db.session.execute(text(f'SELECT * FROM submits_quiz WHERE student_id = {student.id};')))
     quiz_submitted = list()
 
     for quiz in quiz_submitted_query:
