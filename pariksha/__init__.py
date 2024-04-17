@@ -19,7 +19,7 @@ login_manager.login_view = "auth.login"
 def create_app(config_class = Config):
     app = Flask(__name__)
     app.config.from_object(Config)
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    # app.config['CORS_HEADERS'] = 'Content-Type'
     app.config["CORS_ORIGINS"] = ["http://52.66.152.129:2040", "http://localhost:49430"]
 
     CORS(app,supports_credentials=True)
