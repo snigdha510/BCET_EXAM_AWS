@@ -23,7 +23,7 @@ def create_app(config_class = Config):
     app.config.from_object(Config)
     app.config['CORS_HEADERS'] = 'Content-Type'
     app.config["CORS_ORIGINS"] = ["http://52.66.152.129:2040", "http://localhost:49430"]
-    CORS(app, resources={r'/*': {'origins': '*'}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, support_credentials=True)
 
     login_manager.init_app(app)
     mail.init_app(app)
@@ -47,7 +47,6 @@ def create_app(config_class = Config):
     app.register_blueprint(student)
     app.register_blueprint(teacher)
     app.register_blueprint(main)
-    CORS(main)
     app.register_blueprint(auth)
     
     
