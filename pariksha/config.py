@@ -9,4 +9,4 @@ class Config():
     #add email and password 
     MAIL_USERNAME = "pariksha.contact@gmail.com"
     MAIL_PASSWORD = "pycavmail"
-    SQLALCHEMY_DATABASE_URI = "mysql://root:snigdha510@localhost/pariksha"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///site.db"

@@ -3,11 +3,12 @@ from flask_login import login_required, current_user, logout_user
 from pariksha.models import Quiz, Quiz_Questions, Student
 from pariksha import db
 import csv
-import os
+import json
 import requests
 from flask import flash, redirect, request, url_for
 from datetime import datetime, timedelta
 from flask import jsonify
+import logging
 
 teacher = Blueprint('teacher', __name__, url_prefix="/teacher", template_folder='templates', static_folder="static")
 
@@ -32,61 +33,33 @@ def create_new_quiz():
 @teacher.route("/create_new_quiz", methods=['POST'])
 @login_required
 def create_new_quiz_post():
-    if request.json and request.json.get('fetchQuizBtn'):
-        return jsonify({
-            'status': 'error',
-            'message': 'No action triggered.'
-        }), 400
 
     current_teacher = current_user.teacher
 
     try:
-        # Fetch the JWT token from the auth endpoint
-        jwt_response = requests.get('http://52.66.152.129:2021/api/auth/getJwt')
-        jwt_response.raise_for_status()
-        jwt_data = jwt_response.json()
-        jwt_token = jwt_data.get('token')
-        client_id = jwt_data.get('client_id')  # Assuming the client_id is returned here
-
-        headers = {'Authorization': f'Bearer {jwt_token}'}
-
-        # Setting a flag to toggle between mock data and live API data
-        use_mock_data = False
-
-        if use_mock_data:
-            data = {
-                "quiz_title": "Android Development Fundamentals",
-                "start_time": 1712880000000,
-                "end_time": 1712883600000,
-                "questions": [
-                    {
-                        "question_desc": "What is the primary language used for developing Android applications?",
-                        "option_1": "Swift",
-                        "option_2": "Java",
-                        "option_3": "Kotlin",
-                        "option_4": "Ruby",
-                        "marks": 1
-                    }
-                ]
-            }
-        else:
-            # Use the client_id in the request to fetch quiz data
-            api_endpoint = f"http://52.66.152.129:2021/api/demandmvp/bcetjdtdFromChatbot/{client_id}"
-            response = requests.get(api_endpoint, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-
+        api_endpoint = "http://52.66.152.129:2021/api/auth/getBcetQuestion"
+        response = requests.get(api_endpoint)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract the quiz data key
+        quiz_data_key = list(data.keys())[0]
+        # Extract the customer ID and job ID from the key
+        customer_id, job_id = map(int, quiz_data_key.split('_'))
+        
+        quiz_data = json.loads(data[quiz_data_key])
+        
         quiz = Quiz(
-            title=data['quiz_title'],
-            start_time=datetime.fromtimestamp(data['start_time'] / 1000),
-            end_time=datetime.fromtimestamp(data['end_time'] / 1000),
+            title=quiz_data['quiz_title'],
+            start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
+            end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
             teacher_id=current_teacher.id,
             active=True
-        )
+            )
         db.session.add(quiz)
         total_marks = 0
-
-        for question_data in data['questions']:
+        
+        for question_data in quiz_data['questions']:
             question = Quiz_Questions(
                 question_desc=question_data['question_desc'],
                 option_1=question_data['option_1'],
@@ -95,55 +68,132 @@ def create_new_quiz_post():
                 option_4=question_data['option_4'],
                 marks=question_data['marks'],
                 quiz=quiz
-            )
+                )
             total_marks += question.marks
             db.session.add(question)
-
-        quiz.marks = total_marks
-        db.session.commit()
-
-        quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
-        return jsonify({
-            'status': 'success',
-            'message': 'Quiz created and activated successfully!',
-            'quizUrl': quiz_access_url
-        }), 200
+            
+            quiz.marks = total_marks
+            
+            db.session.commit()
+            
+            quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
+            
+            # Prepare data for sending to the API endpoint
+            payload = {
+                "customerId": customer_id,
+                "jobId": job_id,
+                "uniqueLink": quiz_access_url
+                }
+            
+            print(payload)
+            
+            logging.info("Sending payload to API endpoint:")
+            logging.info(payload)
+            
+            # Send data to the API endpoint using PUT method
+            update_endpoint = "http://52.66.152.129:2021/api/auth/updateBcetjdtdFromChatbotUniqueLink"
+            update_response = requests.put(update_endpoint, json=payload)
+            update_response.raise_for_status()
+            
+            # Success message for sending data to the API
+            api_success_message = "Data sent to the API successfully!"
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Quiz created and activated successfully!',
+                'quizUrl': quiz_access_url,
+                'apiMessage': api_success_message
+                }), 200
+            
     except Exception as e:
         db.session.rollback()
         return jsonify({
             'status': 'error',
             'message': 'Failed to create quiz: ' + str(e)
-        }), 500
+            }), 500
+    # if request.json and request.json.get('fetchQuizBtn'):
+    #     return jsonify({
+    #         'status': 'error',
+    #         'message': 'No action triggered.'
+    #     }), 400
 
+    # current_teacher = current_user.teacher
 
+    # try:
+    #     api_endpoint = "http://52.66.152.129:2021/api/auth/getBcetQuestion"
+    #     response = requests.get(api_endpoint)
+    #     response.raise_for_status()
+    #     data = response.json()
+        
+    #     # Extract the quiz data using the key '6_16'
+    #     quiz_data = json.loads(data['6_16'])
+        
+    #     quiz = Quiz(
+    #         title=quiz_data['quiz_title'],
+    #         start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
+    #         end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
+    #         teacher_id=current_teacher.id,
+    #         active=True
+    #         )
+    #     db.session.add(quiz)
+    #     total_marks = 0
+        
+    #     for question_data in quiz_data['questions']:
+    #         question = Quiz_Questions(
+    #             question_desc=question_data['question_desc'],
+    #             option_1=question_data['option_1'],
+    #             option_2=question_data['option_2'],
+    #             option_3=question_data['option_3'],
+    #             option_4=question_data['option_4'],
+    #             marks=question_data['marks'],
+    #             quiz=quiz
+    #             )
+    #         total_marks += question.marks
+    #         db.session.add(question)
+            
+    #         quiz.marks = total_marks
+    #         db.session.commit()
+            
+    #         quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
+    #         return jsonify({
+    #             'status': 'success',
+    #             'message': 'Quiz created and activated successfully!',
+    #             'quizUrl': quiz_access_url
+    #         }), 200
+    # except Exception as e:
+    #     db.session.rollback()
+    #     return jsonify({
+    #         'status': 'error',
+    #         'message': 'Failed to create quiz: ' + str(e)
+    #         }), 500
 
 @teacher.route('/activate_quiz_list')
 @login_required
 def activate_quiz_list():
     if current_user.teacher is None:
-        flash('Access Denide', 'danger')
+        flash('Access Denied', 'danger')
         return redirect(url_for('student.home'))
-    teacher = current_user.teacher
-    quiz_list = list(teacher.quiz_created)
-    quiz_list = [quiz for quiz in quiz_list if quiz.start_time <= datetime.now() <= quiz.end_time]
-    quiz_exists = bool(len(quiz_list))
+    # Fetch all active quizzes
+    quiz_list = Quiz.query.filter(Quiz.start_time <= datetime.now(), Quiz.end_time >= datetime.now()).all()
+    # Check if quizzes exist
+    quiz_exists = bool(quiz_list)
     return render_template('quiz_list_activate.html', title='Activate Quiz', quiz_list=quiz_list, quiz_exists=quiz_exists)
 
 
-@teacher.route('/activate_quiz/<int:quiz_id>')
-@login_required
-def activate_quiz(quiz_id):
-    if current_user.teacher is None:
-        flash('Access Denide', 'danger')
-        return redirect(url_for('student.home'))
-    teacher = current_user.teacher
-    quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
-    if quiz.teacher_id == teacher.id:
-        quiz.active ^= 1
-        db.session.commit()
-        return redirect(url_for('teacher.activate_quiz_list'))
-    else:
-        return redirect(url_for('teacher.home'))
+# @teacher.route('/activate_quiz/<int:quiz_id>')
+# @login_required
+# def activate_quiz(quiz_id):
+#     if current_user.teacher is None:
+#         flash('Access Denide', 'danger')
+#         return redirect(url_for('student.home'))
+#     teacher = current_user.teacher
+#     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
+#     if quiz.teacher_id == teacher.id:
+#         quiz.active ^= 1
+#         db.session.commit()
+#         return redirect(url_for('teacher.activate_quiz_list'))
+#     else:
+#         return redirect(url_for('teacher.home'))
 
 
 @teacher.route('/view_performance_list')

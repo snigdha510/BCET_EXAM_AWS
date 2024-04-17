@@ -5,6 +5,9 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from pariksha.config import Config
 from flask_migrate import Migrate
+from flask_cors import CORS
+
+
 
 mail = Mail()
 bcrypt = Bcrypt()
@@ -17,6 +20,7 @@ login_manager.login_view = "auth.login"
 
 def create_app(config_class = Config):
     app = Flask(__name__)
+    cors = CORS(app)
     app.config.from_object(Config)
 
     login_manager.init_app(app)

@@ -231,7 +231,6 @@ def add_teacher():
         return redirect(url_for('student.add_teacher'))
 
 @student.route("/quiz/<int:quiz_id>", methods=["GET"])
-@login_required
 def attempt_quiz(quiz_id):
     # Construct the URL to redirect to
     url = url_for('student.quiz', quiz_id=quiz_id)
