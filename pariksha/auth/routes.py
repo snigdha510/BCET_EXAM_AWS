@@ -65,6 +65,7 @@ def register():
 #         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
 
 @auth.route("/api/register", methods=["POST"])
+@cross_origin(supports_credentials=True)
 def api_register():
     if request.json:
         name = request.json.get('name')
