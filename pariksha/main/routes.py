@@ -22,7 +22,7 @@ def welcome():
             return redirect(url_for('teacher.home'))
         
 @main.route("/externalregister", methods=["POST", "OPTIONS"])
-@cross_origin(supports_credentials=True)
+@cross_origin(headers=["Content-Type"])
 def api_register():
     if request.json:
         name = request.json.get('name')
