@@ -5,7 +5,6 @@ from pariksha.models import User, Student, Teacher
 from pariksha.auth.utils import send_reset_email, send_verification_email
 from pariksha import bcrypt, db
 from urllib.parse import urlparse, urljoin
-import requests
 from flask_cors import cross_origin
 
 auth = Blueprint("auth", __name__, template_folder="templates", static_folder="static")
