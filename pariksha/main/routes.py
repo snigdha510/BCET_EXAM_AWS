@@ -80,31 +80,25 @@ def api_login():
         # Check if the user details are present in the talent details endpoint
         talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
         talent_response = requests.get(talent_endpoint)
-        
+
         if talent_response.status_code == 200:
             talent_data = talent_response.json()
-            
-            if email == talent_data.get("email"):  # Compare email directly
-                user = User.query.filter_by(email=email).first()
-                
-                if user and bcrypt.check_password_hash(user.password, password):
-                    # Get quiz URL details
-                    customer_id = talent_data.get("customerId")
-                    job_id = talent_data.get("jobId")
-                    quiz_access_url = "http://your-quiz-url"  # Replace with actual quiz URL
-                    
-                    # Update quiz URL via API endpoint
-                    update_endpoint = "http://52.66.152.129:2021/api/auth/updateBcetjdtdFromChatbotUniqueLink"
-                    payload = {"customerId": customer_id, "jobId": job_id, "uniqueLink": quiz_access_url}
-                    update_response = requests.put(update_endpoint, json=payload)
-                    
-                    if update_response.status_code == 200:
-                        # Redirect user to the quiz URL
-                        return redirect(quiz_access_url)
+            if email in talent_data:  # Check if email exists in talent details
+                # Compare password directly with the API response
+                if password == talent_data[email]['password']:
+                    # Fetch user from the database
+                    user = User.query.filter_by(email=email).first()
 
-                    flash("Failed to update quiz URL. Please try again later.", "danger")
+                    # If user exists, proceed with login
+                    if user:
+                        login_user(user, remember=False)
+
+                        # Redirect user to the desired location
+                        return redirect(url_for('desired_route'))
+
+                    flash("User not found. Please register.", "danger")
                 else:
-                    flash("Incorrect email or password. Please try again.", "danger")
+                    flash("Incorrect password. Please try again.", "danger")
             else:
                 flash("User not found in talent details. Please register or contact support.", "danger")
         else:
