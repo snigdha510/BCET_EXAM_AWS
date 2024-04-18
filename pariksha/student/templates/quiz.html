@@ -1,12 +1,145 @@
 {% extends "layout.html" %}
 {% block content %}
 <head>
-    <link rel="stylesheet" href="PlaywithButtons.css">
-    <link rel="icon" href="mvrikxix.png">
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="PlaywithButtons.css">
+<link rel="icon" href="mvrikxix.png">
+
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+
 </head>
 <style>
-    /* Your CSS styles here */
+    .zoom {
+        transition: transform .2s;
+    }
+
+    .zoom:hover {
+        transform: scale(1.2);
+    }
+
+    .button2:hover {
+        box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    input:disabled {
+        background: grey;
+    }
+
+    input:enabled {
+        background-color: rgb(7, 182, 7);
+    }
+
+    .choose {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: 0px;
+        display: block;
+        background: #262626;
+        height: 209px;
+    }
+    
+    .choose input {
+        -webkit-appearance: none;
+    }
+    
+    .choose #female {
+        position: absolute;
+        left: 65%;
+    }
+    
+    .choose #male, #female {
+        position: absolute;
+        top: 50%;
+        left: 35%;
+        transform: translate(-50%,-50%);
+        background: #ffffff;
+        width: 70px;
+        height: 70px;
+        text-align: center;
+        border-radius: 50%;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: .5s;
+        font-size: 24px;
+        color: #262626;
+    }
+    
+    .choose #male:hover {
+        background: #3c81de;
+        color: white;
+    }
+    
+    .choose #female:hover {
+        background: #f23895;
+        color: white;
+    }
+    
+    .choose #male .fas {
+        display: block;
+        line-height: 10px;
+        border-radius: 50%;
+    }
+    
+    .choose #female .fas {
+        display: block;
+        line-height: 70px;
+        border-radius: 50%;
+    }
+    
+    .choose #male .fas:hover {
+        animation: manimate 7s;
+    }
+    
+    @keyframes manimate {
+        0% {
+            box-shadow: 0 0 0 0 rgb(90, 168, 217)
+        }
+        12% {
+            box-shadow: 0 0 0 50px rgba(255,109,74,0)
+        }
+        80% {
+            box-shadow: 0 0 0 0px rgba(255,109,74,0)
+        }
+        100% {
+            box-shadow: 0 0 0 50px rgba(255,109,74,0)
+        }
+    }
+    
+    .choose #female .fas:hover {
+        animation: fanimate 7s;
+    }
+    
+    input[type="radio"]:checked {
+        animation: fanimate 7s;
+    }
+    
+    @keyframes fanimate {
+        0% {
+            box-shadow: 0 0 0 0 rgba(237, 110, 173, 0.98)
+        }
+        12% {
+            box-shadow: 0 0 0 50px rgba(255,109,74,0)
+        }
+        80% {
+            box-shadow: 0 0 0 0px rgba(255,109,74,0)
+        }
+        100% {
+            box-shadow: 0 0 0 50px rgba(255,109,74,0)
+        }
+    }
+
+    /* Video container */
+    .video-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    /* Video element */
+    #video {
+        width: 50%; /* Adjust as needed */
+        height: auto;
+        border: 2px solid black;
+    }
 </style>
 
 <div class="jumbotron" style="background-color:white; ">
@@ -17,27 +150,27 @@
     </div>
 
     <form method="POST" id="quiz-form">
-        {% for quiz_data_key, quiz_data_json in data.items() %}
-            {% set quiz_data = json.loads(quiz_data_json) %}
-            {% for question_data in quiz_data['questions'] %}
-                <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
-                    <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
-                        <h2>Q : {{ question_data['question_desc'] }}</h2>
-                    </div>
-                    <div class="container" style="padding:10px; margin-top:20px; border-radius:20px; background-color:lightpink;">
-                        <div style="margin-top: 25px; padding:10px;">
-                            {% for i in range(1, 5) %}
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input class="form-check-input" type="radio" value="{{ question_data['option_' ~ i] }}" name="{{ quiz_data_key }}">
-                                    <label class="form-check-label" for="{{ quiz_data_key }}" style="margin-left: 30px; font-size:x-large;">
-                                        {{ question_data['option_' ~ i] }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
+        
+
+        {% for ques in shuffled_questions %}
+        <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
+            <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
+                <h2>Q : {{ ques }}</h2>
+            </div>
+
+            <div class="container" style="padding:10px; margin-top:20px; border-radius:20px; background-color:lightpink;">
+                {% for opts in questions[ques] %}
+                <div style="margin-top: 25px; padding:10px;">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ ques }}">
+                        <label class="form-check-label" for="{{ ques }}" style="margin-left: 30px; font-size:x-large;">
+                            {{ opts }}
+                        </label>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
         
         <!-- Submit button -->
