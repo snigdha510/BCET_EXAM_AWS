@@ -23,7 +23,7 @@ def welcome():
         else:
             return redirect(url_for('teacher.home'))
         
-@main.route("/externalregister", methods=["POST"])
+@main.route("/externalregister", methods=["GET","POST"])
 def externalregister():
     # Fetch user details from the external API endpoint
     talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
