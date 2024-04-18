@@ -9,7 +9,6 @@ from pariksha import bcrypt, db
 from urllib.parse import urlparse, urljoin
 from flask_cors import cross_origin, CORS
 import requests
-from urllib.parse import urlparse, urljoin
 
 main = Blueprint("main",__name__,template_folder="templates",static_folder="static")
 
@@ -24,34 +23,30 @@ def welcome():
             return redirect(url_for('student.home'))
         else:
             return redirect(url_for('teacher.home'))
-
-@main.route("/api/register", methods=["POST"])
-def api_register():
-    if request.json:
-        name = request.json.get('name')
-        email = request.json.get('email')
-        password = request.json.get('password')
-        acc_type = request.json.get('acc_type')
         
-        # Check if the user details are present in the talent details endpoint
+@main.route("/externalregister", methods=["POST"])
+def externalregister():
+    if request.json:
+        # Fetch user details from the external API endpoint
         talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
         talent_response = requests.get(talent_endpoint)
+        
         if talent_response.status_code == 200:
             talent_data = talent_response.json()
-            if email in talent_data:  # Assuming email is the unique identifier
-                # Log in the user directly
-                user = User.query.filter_by(email=email).first()
-                if user:
-                    login_user(user, remember=False)
-                    return jsonify({"message": "User logged in successfully", "user_id": user.id}), 200
-
-        # If user details are not present in talent details, proceed with registration
+            name = talent_data.get('name')
+            email = talent_data.get('email')
+            password = talent_data.get('password')  
+            acc_type = talent_data.get('acc_type')
+        else:
+            return jsonify({"error": "Failed to fetch user details from external API"}), 500
+        
+        # Check if the user with the provided email is already registered
         user = User.query.filter_by(email=email).first()
         if user:
             # If user is registered, log them in
             login_user(user, remember=False)
             return jsonify({"message": "User logged in successfully", "user_id": user.id}), 200
-
+        
         # If user is not registered, proceed with registration
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         user = User(name=name, email=email, password=hashed_password)
@@ -69,39 +64,5 @@ def api_register():
         db.session.commit()
         
         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
-
-@main.route("/login", methods=["POST", "GET"])
-def api_login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
-
-        # Check if the user details are present in the talent details endpoint
-        talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
-        talent_response = requests.get(talent_endpoint)
-
-        if talent_response.status_code == 200:
-            talent_data = talent_response.json()
-            if email in talent_data:  # Check if email exists in talent details
-                # Compare password directly with the API response
-                if password == talent_data[email]['password']:
-                    # Fetch user from the database
-                    user = User.query.filter_by(email=email).first()
-
-                    # If user exists, proceed with login
-                    if user:
-                        login_user(user, remember=False)
-
-                        # Redirect user to the desired location
-                        return redirect(url_for('desired_route'))
-
-                    flash("User not found. Please register.", "danger")
-                else:
-                    flash("Incorrect password. Please try again.", "danger")
-            else:
-                flash("User not found in talent details. Please register or contact support.", "danger")
-        else:
-            flash("Failed to fetch talent details. Please try again later.", "danger")
-
-    return render_template("login.html", form=form, title="Login")
+    else:
+        return jsonify({"error": "Invalid request format"}), 400
