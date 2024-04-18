@@ -116,7 +116,7 @@ def create_new_quiz_post():
             }), 500
     
 @teacher.route('/create_new_quiz_api/<int:id>', methods=['POST'])
-def create_new_quiz_post():
+def create_new_quiz_post_api():
 
     current_teacher = User.query.filter_by(teacher_id=id).first()
 
