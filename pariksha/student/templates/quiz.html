@@ -1,16 +1,14 @@
 {% extends "layout.html" %}
-
 {% block content %}
 <head>
-   
-  <link rel="stylesheet" href="PlaywithButtons.css">
-  <link rel="icon" href="mvrikxix.png">
-  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="PlaywithButtons.css">
+<link rel="icon" href="mvrikxix.png">
+
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
 
 </head>
 <style>
     .zoom {
-
         transition: transform .2s;
     }
 
@@ -30,7 +28,7 @@
         background-color: rgb(7, 182, 7);
     }
 
-    .choose{
+    .choose {
         margin: 0;
         padding: 0;
         position: relative;
@@ -40,16 +38,16 @@
         height: 209px;
     }
     
-    .choose input{
+    .choose input {
         -webkit-appearance: none;
     }
     
-    .choose #female{
+    .choose #female {
         position: absolute;
         left: 65%;
     }
     
-    .choose #male, #female{
+    .choose #male, #female {
         position: absolute;
         top: 50%;
         left: 35%;
@@ -65,131 +63,150 @@
         color: #262626;
     }
     
-    .choose #male:hover{
+    .choose #male:hover {
         background: #3c81de;
         color: white;
     }
     
-    .choose #female:hover{
+    .choose #female:hover {
         background: #f23895;
         color: white;
     }
     
-    .choose #male .fas{
+    .choose #male .fas {
         display: block;
         line-height: 10px;
         border-radius: 50%;
     }
     
-    .choose #female .fas{
+    .choose #female .fas {
         display: block;
         line-height: 70px;
         border-radius: 50%;
     }
     
-    .choose #male .fas:hover{
+    .choose #male .fas:hover {
         animation: manimate 7s;
     }
     
-    @keyframes manimate{
-        0%{
+    @keyframes manimate {
+        0% {
             box-shadow: 0 0 0 0 rgb(90, 168, 217)
         }
-        12%{
+        12% {
             box-shadow: 0 0 0 50px rgba(255,109,74,0)
         }
-        80%{
+        80% {
             box-shadow: 0 0 0 0px rgba(255,109,74,0)
         }
-        100%{
+        100% {
             box-shadow: 0 0 0 50px rgba(255,109,74,0)
         }
     }
     
-    .choose #female .fas:hover{
+    .choose #female .fas:hover {
         animation: fanimate 7s;
     }
     
-    input[type="radio"]:checked{
+    input[type="radio"]:checked {
         animation: fanimate 7s;
     }
     
-    @keyframes fanimate{
-        0%{
+    @keyframes fanimate {
+        0% {
             box-shadow: 0 0 0 0 rgba(237, 110, 173, 0.98)
         }
-        12%{
+        12% {
             box-shadow: 0 0 0 50px rgba(255,109,74,0)
         }
-        80%{
+        80% {
             box-shadow: 0 0 0 0px rgba(255,109,74,0)
         }
-        100%{
+        100% {
             box-shadow: 0 0 0 50px rgba(255,109,74,0)
         }
+    }
+
+    /* Video container */
+    .video-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    /* Video element */
+    #video {
+        width: 50%; /* Adjust as needed */
+        height: auto;
+        border: 2px solid black;
     }
 </style>
 
 <div class="jumbotron" style="background-color:white; ">
-    <div class='jumbotron' style="background-color:pink; border-radius:20px; margin-top:30px; margin-left:20px; margin-right:20px;  ">
+    <div id="timer" style="font-size: 20px; margin-top: 20px; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 9999; color: white;">Time Left: 00:59</div>
 
+    <div class='jumbotron' style="background-color:pink; border-radius:20px; margin-top:30px; margin-left:20px; margin-right:20px;">
         <div style="font-size: 35px; align-items:center;"> <strong>PARiKSHA</strong> - Quiz Heading </div>
     </div>
 
-    <form method="POST">
-        {% for ques in shuffled_questions %}
-        <div class='jumbotron'
-            style="margin-top: 50px;   padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
-
+    <form method="POST" id="quiz-form">
+        
+<!-- 
+        {% for ques in shuffled_questions %} -->
+        <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
             <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
-                <h2>Q : {{ques}}</h2>
-                
+                <h2>Q : {{ ques }}</h2>
             </div>
-  
-
-
 
             <div class="container" style="padding:10px; margin-top:20px; border-radius:20px; background-color:lightpink;">
-
                 {% for opts in questions[ques] %}
-
                 <div style="margin-top: 25px; padding:10px;">
                     <div class="custom-control custom-radio custom-control-inline">
-                        <input class="form-check-input" type="radio" value="{{opts}}" name="{{ques}}" >
-                        <label class="form-check-label" for="radio" style="margin-left: 30px; font-size:x-large;">
-                            
-                            <span id="male"></span>
-                            {{opts}}
+                        <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ ques }}">
+                        <label class="form-check-label" for="{{ ques }}" style="margin-left: 30px; font-size:x-large;">
+                            {{ opts }}
                         </label>
                     </div>
-                    
                 </div>
-
                 {% endfor %}
-
             </div>
-
         </div>
         {% endfor %}
-        <!-- this input field's postion has to be corrected -->
+        
+        <!-- Submit button -->
         <div class="container">
             <div class="row justify-content-end">
                 <div class="col-6 col-md-4"></div>
-
                 <div class="col-auto" style="padding: 25px;">
-                    <input type="submit" value="Submit" style="padding: 10px; width:200px; background-color:#e43c5c; color:white; font-size:x-large;" class="zoom"
-                        name="submit" id="submit" disabled=true  />
+                    <input type="submit" value="Submit" style="padding: 10px; width:200px; background-color:#e43c5c; color:white; font-size:x-large;" class="zoom" name="submit" id="submit" disabled />
                 </div>
-
-
             </div>
         </div>
     </form>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-
     <script>
-        var question_count = {question_count};
+        var timerDuration = 30 * 60; 
+        var timerInterval;
+    
+        function updateTimer() {
+            var minutes = Math.floor(timerDuration / 60);
+            var seconds = timerDuration % 60;
+            var timerDisplay = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+            $('#timer').text('Time Left: ' + timerDisplay);
+        }
+    
+        timerInterval = setInterval(function () {
+            if (timerDuration > 0) {
+                timerDuration--;
+                updateTimer();
+            } else {
+                clearInterval(timerInterval);
+                $('#quiz-form').submit(); // Submit the form when timer finishes
+            }
+        }, 1000);
+    
+        var question_count = { question_count };
         $(":radio").change(function () {
             if ($(':radio:checked').length == question_count) {
                 $('#submit').attr('disabled', false);
@@ -198,37 +215,26 @@
     </script>
 </div>
 <footer class="page-footer blue text-center " style="padding: 15px; background-color:rgba(128, 128, 128, 0.199);">
-
     <!--Footer Links-->
     <div class="container-fluid" style="padding: 15px;">
         <div class="row">
-  
             <!--First column-->
             <div class="col-md-6">
                 <h5 class="title mb-3">PARiKSHA</h5>
                 <p>
-                PARiKSHA is created with a motive of providing a unified platform to students and teachers so that the process of learning and its quality does not reduces in these tough times.
+                PARiKSHA is created with a motive of providing a unified platform to students and teachers so that the process of learning and its quality does not reduce in these tough times.
                     
                 </p>
             </div>
             <!--/.First column-->
-  
             <!--Second column-->
             <div class="col">
                 <h5 class="title">Contact Us</h5>
                 
                     <li><a href="#">Mail</a></li>
-                    <p>pariksha.contact@gmail.com</p>
-                    <li><a href="https://www.linkedin.com/posts/pulkit-vyas_onlineexamination-onlineeducation-edtech-activity-6716777003296555008-MvzC">LinkedIn</a></li>
-                    
-                    
-                
             </div>
             <!--/.Second column-->
         </div>
     </div>
-   
-  </footer>
-  
-
+</footer>
 {% endblock content %}
