@@ -35,6 +35,7 @@ def externalregister():
         email = talent_data.get('email')
         password = talent_data.get('password')  # Ensure this is hashed appropriately
         acc_type = talent_data.get('acc_type')
+        tid=talent_data.get("talentid")
     else:
         return jsonify({"error": "Failed to fetch user details from external API"}), 500
     
@@ -43,7 +44,8 @@ def externalregister():
         "name": name,
         "email": email,
         "password": password,
-        "acc_type": acc_type
+        "acc_type": acc_type,
+        "talentid": tid
     }
     external_register_endpoint = "http://52.66.152.129:2028/externalregister"
     external_register_response = requests.post(external_register_endpoint, json=register_data)

@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from pariksha.config import Config
 from flask_migrate import Migrate
-from flask_cors import CORS
+
 
 
 mail = Mail()
@@ -20,9 +20,9 @@ def create_app(config_class = Config):
     app = Flask(__name__)
     app.config.from_object(Config)
     # app.config['CORS_HEADERS'] = 'Content-Type'
-    app.config["CORS_ORIGINS"] = ["http://52.66.152.129:2040", "http://localhost:49430"]
+    # app.config["CORS_ORIGINS"] = ["http://52.66.152.129:2040", "http://localhost:49430"]
 
-    CORS(app,supports_credentials=True)
+    # CORS(app,supports_credentials=True)
     login_manager.init_app(app)
     mail.init_app(app)
     bcrypt.init_app(app)

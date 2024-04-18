@@ -39,6 +39,9 @@ class User(db.Model,UserMixin):
         backref = 'user',
         uselist = False)
     
+    tid=db.Column(db.Integer, 
+                        nullable=False)
+    
     def get_reset_token(self,expire_sec = 600):
         s = Serializer(current_app.config["SECRET_KEY"],expire_sec)
         return s.dumps({"user_id": self.id}).decode("utf-8")
