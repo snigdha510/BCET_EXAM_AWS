@@ -25,32 +25,34 @@ def welcome():
         
 @main.route("/externalregister", methods=["GET","POST"])
 def externalregister():
-    # Fetch user details from the external API endpoint
-    talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
-    talent_response = requests.get(talent_endpoint)
-    
-    if talent_response.status_code == 200:
-        talent_data = talent_response.json()
-        name = talent_data.get('name')
-        email = talent_data.get('email')
-        password = talent_data.get('password')  # Ensure this is hashed appropriately
-        acc_type = talent_data.get('acc_type')
-    else:
-        return jsonify({"error": "Failed to fetch user details from external API"}), 500
-    
-    # Post user details to the external register route
-    register_data = {
-        "name": name,
-        "email": email,
-        "password": password,
-        "acc_type": acc_type
-    }
-    external_register_endpoint = "http://52.66.152.129:2028/externalregister"
-    external_register_response = requests.post(external_register_endpoint, json=register_data)
+    if request.json:
+        name = request.json.get('name')
+        email = request.json.get('email')
+        password = request.json.get('password')
+        acc_type = request.json.get('acc_type')
+        
+        # Check if the user with the provided email is already registered
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # If user is registered, log them in
+            login_user(user, remember=False)
+            return jsonify({"message": "User logged in successfully", "user_id": user.id}), 200
+        
+        # If user is not registered, proceed with registration
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(name=name, email=email, password=hashed_password)
+        
+        if acc_type == "Student":
+            student = Student(user=user)
+            db.session.add(student)
+        elif acc_type == "Teacher":
+            teacher = Teacher(user=user)
+            db.session.add(teacher)
+        else:
+            return jsonify({"error": "Invalid account type"}), 400
 
-    if external_register_response.status_code == 201:
-        return jsonify({"message": "User registered successfully"}), 201
-    elif external_register_response.status_code == 200:
-        return jsonify({"message": "User logged in successfully"}), 200
-    else:
-        return jsonify({"error": "Failed to register user"}), 500
+        db.session.add(user)
+        db.session.commit()
+        
+        return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
+    return jsonify({"message": "NO JSON FOUND"}), 400
