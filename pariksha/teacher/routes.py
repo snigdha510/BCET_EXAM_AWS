@@ -115,10 +115,10 @@ def create_new_quiz_post():
             'message': 'Failed to create quiz: ' + str(e)
             }), 500
     
-@teacher.route('/create_new_quiz_api/<int:id>', methods=['POST'])
-def create_new_quiz_post_api(id):
+@teacher.route('/create_new_quiz_api/<int:tid>', methods=['POST'])
+def create_new_quiz_post_api(tid):
 
-    current_teacher = User.query.filter_by(id=id).first()
+    current_teacher = User.query.filter_by(tid=tid).first()
 
     if current_teacher is None:
         return jsonify({
