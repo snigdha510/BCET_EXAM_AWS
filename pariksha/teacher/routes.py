@@ -9,9 +9,11 @@ from flask import flash, redirect, request, url_for
 from datetime import datetime, timedelta
 from flask import jsonify
 import logging
+from flask_cors import CORS 
 
 teacher = Blueprint('teacher', __name__, url_prefix="/teacher", template_folder='templates', static_folder="static")
 
+CORS(teacher,supports_credentials=True)
 
 @teacher.route('/home')
 def home():
