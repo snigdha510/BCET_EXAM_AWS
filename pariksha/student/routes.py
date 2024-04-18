@@ -30,6 +30,8 @@ def quiz(quiz_id):
     # Fetch the quiz from the database
     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
 
+    print(current_user.student)
+
     # Check if the quiz has already been submitted
     if quiz in current_user.student.submitted_quiz:
         flash('You have already submitted this quiz!', 'warning')

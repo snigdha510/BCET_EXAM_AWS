@@ -150,6 +150,13 @@
     </div>
 
     <form method="POST" id="quiz-form">
+        <!-- Debugging statements -->
+        {% for ques in shuffled_questions %}
+        <div>Question: {{ ques }}</div>
+        <div>Options: {{ questions[ques] }}</div>
+        {% endfor %}
+        <!-- End of debugging statements -->
+
         {% for ques in shuffled_questions %}
         <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
             <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
@@ -200,19 +207,17 @@
                 updateTimer();
             } else {
                 clearInterval(timerInterval);
-                $('#quiz-form').submit();
+                $('#quiz-form').submit(); // Submit the form when timer finishes
             }
         }, 1000);
     
-        
-
-    var question_count = { question_count };
-    $(":radio").change(function () {
-        if ($(':radio:checked').length == question_count) {
-            $('#submit').attr('disabled', false);
-        }
-    }).change();
-</script>
+        var question_count = { question_count };
+        $(":radio").change(function () {
+            if ($(':radio:checked').length == question_count) {
+                $('#submit').attr('disabled', false);
+            }
+        }).change();
+    </script>
 </div>
 <footer class="page-footer blue text-center " style="padding: 15px; background-color:rgba(128, 128, 128, 0.199);">
     <!--Footer Links-->
@@ -233,7 +238,6 @@
                 
                     <li><a href="#">Mail</a></li>
                     <p>pariksha.contact@gmail.com</p>
-                    <li><a href="https://www.linkedin.com/posts/pulkit-vyas_onlineexamination-onlineeducation-edtech-activity-6716777003296555008-MvzC">LinkedIn</a></li>
             </div>
             <!--/.Second column-->
         </div>

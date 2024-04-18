@@ -134,22 +134,21 @@ def create_new_quiz_post_api(tid):
         response.raise_for_status()
         data = response.json()
         
-        # Extract the quiz data key
-        quiz_data_key = list(data.keys())[0]
-        # Extract the customer ID and job ID from the key
-        customer_id, job_id = map(int, quiz_data_key.split('_'))
-        
-        quiz_data = json.loads(data[quiz_data_key])
-        
-        quiz = Quiz(
-            title=quiz_data['quiz_title'],
-            start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
-            end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
-            teacher_id=current_teacher.tid,
-            active=True
+        for quiz_data_key, quiz_data_json in data.items():
+            # Extract the customer ID and job ID from the key
+            customer_id, job_id = map(int, quiz_data_key.split('_'))
+
+            quiz_data = json.loads(quiz_data_json)
+
+            quiz = Quiz(
+                title=quiz_data['quiz_title'],
+                start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
+                end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
+                teacher_id=current_teacher.tid,
+                active=True
             )
-        db.session.add(quiz)
-        total_marks = 0
+            db.session.add(quiz)
+            total_marks = 0
         
         for question_data in quiz_data['questions']:
             question = Quiz_Questions(
@@ -164,36 +163,36 @@ def create_new_quiz_post_api(tid):
             total_marks += question.marks
             db.session.add(question)
             
-            quiz.marks = total_marks
+        quiz.marks = total_marks
             
-            db.session.commit()
+        db.session.commit()
             
-            quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
+        quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
             
             # Prepare data for sending to the API endpoint
-            payload = {
+        payload = {
                 "customerId": customer_id,
                 "jobId": job_id,
                 "uniqueLink": quiz_access_url
                 }
             
-            logging.info("Sending payload to API endpoint:")
-            logging.info(payload)
+        logging.info("Sending payload to API endpoint:")
+        logging.info(payload)
             
             # Send data to the API endpoint using PUT method
-            update_endpoint = "http://52.66.152.129:2021/api/auth/updateBcetjdtdFromChatbotUniqueLink"
-            update_response = requests.put(update_endpoint, json=payload)
-            update_response.raise_for_status()
+        update_endpoint = "http://52.66.152.129:2021/api/auth/updateBcetjdtdFromChatbotUniqueLink"
+        update_response = requests.put(update_endpoint, json=payload)
+        update_response.raise_for_status()
             
             # Clear the HashMap data from the API endpoint
-            clear_endpoint = f"http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
-            clear_response = requests.get(clear_endpoint)
-            clear_response.raise_for_status()
+        clear_endpoint = f"http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
+        clear_response = requests.get(clear_endpoint)
+        clear_response.raise_for_status()
             
             # Success message for sending data to the API
-            api_success_message = "Data sent to the API successfully and HashMap cleared!"
+        api_success_message = "Data sent to the API successfully and HashMap cleared!"
             
-            return jsonify({
+        return jsonify({
                 'status': 'success',
                 'message': 'Quiz created and activated successfully!',
                 'quizUrl': quiz_access_url,
