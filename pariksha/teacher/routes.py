@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, request, send_from_directory
 from flask_login import login_required, current_user, logout_user
-from pariksha.models import Quiz, Quiz_Questions, Student
+from pariksha.models import Quiz, Quiz_Questions, Student, User
 from pariksha import db
 import csv
 import json
@@ -85,8 +85,6 @@ def create_new_quiz_post():
                 "uniqueLink": quiz_access_url
                 }
             
-            print(payload)
-            
             logging.info("Sending payload to API endpoint:")
             logging.info(payload)
             
@@ -95,8 +93,13 @@ def create_new_quiz_post():
             update_response = requests.put(update_endpoint, json=payload)
             update_response.raise_for_status()
             
+            # Clear the HashMap data from the API endpoint
+            clear_endpoint = "http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
+            clear_response = requests.post(clear_endpoint)
+            clear_response.raise_for_status()
+            
             # Success message for sending data to the API
-            api_success_message = "Data sent to the API successfully!"
+            api_success_message = "Data sent to the API successfully and HashMap cleared!"
             
             return jsonify({
                 'status': 'success',
@@ -111,6 +114,97 @@ def create_new_quiz_post():
             'status': 'error',
             'message': 'Failed to create quiz: ' + str(e)
             }), 500
+    
+@teacher.route('/create_new_quiz_api/<int:id>', methods=['POST'])
+def create_new_quiz_post():
+
+    current_teacher = User.query.filter_by(teacher_id=id).first()
+
+    if current_teacher is None:
+        return jsonify({
+            'message' : 'enter correct id'
+        }), 400
+        
+
+    try:
+        api_endpoint = "http://52.66.152.129:2021/api/auth/getBcetQuestion"
+        response = requests.get(api_endpoint)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract the quiz data key
+        quiz_data_key = list(data.keys())[0]
+        # Extract the customer ID and job ID from the key
+        customer_id, job_id = map(int, quiz_data_key.split('_'))
+        
+        quiz_data = json.loads(data[quiz_data_key])
+        
+        quiz = Quiz(
+            title=quiz_data['quiz_title'],
+            start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
+            end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
+            teacher_id=current_teacher.id,
+            active=True
+            )
+        db.session.add(quiz)
+        total_marks = 0
+        
+        for question_data in quiz_data['questions']:
+            question = Quiz_Questions(
+                question_desc=question_data['question_desc'],
+                option_1=question_data['option_1'],
+                option_2=question_data['option_2'],
+                option_3=question_data['option_3'],
+                option_4=question_data['option_4'],
+                marks=question_data['marks'],
+                quiz=quiz
+                )
+            total_marks += question.marks
+            db.session.add(question)
+            
+            quiz.marks = total_marks
+            
+            db.session.commit()
+            
+            quiz_access_url = url_for('student.quiz', quiz_id=quiz.id, _external=True)
+            
+            # Prepare data for sending to the API endpoint
+            payload = {
+                "customerId": customer_id,
+                "jobId": job_id,
+                "uniqueLink": quiz_access_url
+                }
+            
+            logging.info("Sending payload to API endpoint:")
+            logging.info(payload)
+            
+            # Send data to the API endpoint using PUT method
+            update_endpoint = "http://52.66.152.129:2021/api/auth/updateBcetjdtdFromChatbotUniqueLink"
+            update_response = requests.put(update_endpoint, json=payload)
+            update_response.raise_for_status()
+            
+            # Clear the HashMap data from the API endpoint
+            clear_endpoint = "http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
+            clear_response = requests.post(clear_endpoint)
+            clear_response.raise_for_status()
+            
+            # Success message for sending data to the API
+            api_success_message = "Data sent to the API successfully and HashMap cleared!"
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Quiz created and activated successfully!',
+                'quizUrl': quiz_access_url,
+                'apiMessage': api_success_message
+                }), 200
+            
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': 'Failed to create quiz: ' + str(e)
+            }), 500
+
     # if request.json and request.json.get('fetchQuizBtn'):
     #     return jsonify({
     #         'status': 'error',
