@@ -30,16 +30,22 @@ def externalregister():
         email = request.json.get('email')
         password = request.json.get('password')
         acc_type = request.json.get('acc_type')
+
+        print(f"RECEIEVED SIGNUP REQUEST ====> {name} | {email} | {password}")
         
         # Check if the user with the provided email is already registered
         user = User.query.filter_by(email=email).first()
         if user:
             # If user is registered, log them in
+            print("USER FOUND; LOGGING IN")
             login_user(user, remember=False)
             return jsonify({"message": "User logged in successfully", "user_id": user.id}), 200
         
         # If user is not registered, proceed with registration
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        print(f"HASHEDPASSWORD: {hashed_password}")
+
         user = User(name=name, email=email, password=hashed_password)
         
         if acc_type == "Student":
@@ -51,8 +57,9 @@ def externalregister():
         else:
             return jsonify({"error": "Invalid account type"}), 400
 
+        print(f"COMMITTING USER: {user}")
         db.session.add(user)
         db.session.commit()
         
-        return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
+        return jsonify({"message": "User registered successfully", "user_id": user.id}), 200
     return jsonify({"message": "NO JSON FOUND"}), 400
