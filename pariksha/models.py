@@ -25,7 +25,9 @@ class User(db.Model,UserMixin):
 
     password = db.Column(db.String(255),
         nullable = False)
-
+    
+    tid=db.Column(db.Integer, 
+                        nullable=False)
     
     verified = db.Column(db.Boolean,
         nullable = False,
@@ -39,8 +41,7 @@ class User(db.Model,UserMixin):
         backref = 'user',
         uselist = False)
     
-    tid=db.Column(db.Integer, 
-                        nullable=False)
+    
     
     def get_reset_token(self,expire_sec = 600):
         s = Serializer(current_app.config["SECRET_KEY"],expire_sec)

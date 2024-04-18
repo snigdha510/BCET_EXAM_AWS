@@ -30,6 +30,7 @@ def externalregister():
         email = request.json.get('email')
         password = request.json.get('password')
         acc_type = request.json.get('acc_type')
+        talentid = request.json.get('talentid')
 
         print(f"RECEIEVED SIGNUP REQUEST ====> {name} | {email} | {password}")
         
@@ -46,7 +47,7 @@ def externalregister():
 
         print(f"HASHEDPASSWORD: {hashed_password}")
 
-        user = User(name=name, email=email, password=hashed_password)
+        user = User(name=name, email=email, password=hashed_password, tid=talentid)
         
         if acc_type == "Student":
             student = Student(user=user)
