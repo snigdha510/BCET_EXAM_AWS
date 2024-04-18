@@ -143,7 +143,7 @@ def create_new_quiz_post_api(tid):
             title=quiz_data['quiz_title'],
             start_time=datetime.fromtimestamp(quiz_data['start_time'] / 1000),
             end_time=datetime.fromtimestamp(quiz_data['end_time'] / 1000),
-            teacher_id=current_teacher.id,
+            teacher_id=current_teacher.tid,
             active=True
             )
         db.session.add(quiz)
@@ -184,7 +184,7 @@ def create_new_quiz_post_api(tid):
             update_response.raise_for_status()
             
             # Clear the HashMap data from the API endpoint
-            clear_endpoint = "http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
+            clear_endpoint = f"http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
             clear_response = requests.post(clear_endpoint)
             clear_response.raise_for_status()
             
