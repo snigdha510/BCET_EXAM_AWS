@@ -32,7 +32,7 @@ def externalregister():
         acc_type = request.json.get('acc_type')
         talentid = request.json.get('talentid')
 
-        print(f"RECEIEVED SIGNUP REQUEST ====> {name} | {email} | {password}")
+        print(f"RECEIEVED SIGNUP REQUEST ====> {name} | {email} | {password} | {talentid}")
         
         # Check if the user with the provided email is already registered
         user = User.query.filter_by(email=email).first()
