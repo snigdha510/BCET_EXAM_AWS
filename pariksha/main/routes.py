@@ -9,6 +9,7 @@ from pariksha import bcrypt, db
 from urllib.parse import urlparse, urljoin
 from flask_cors import cross_origin, CORS
 import requests
+from urllib.parse import urlparse, urljoin
 
 main = Blueprint("main",__name__,template_folder="templates",static_folder="static")
 
@@ -68,3 +69,32 @@ def api_register():
         db.session.commit()
         
         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
+
+@main.route("/login", methods=["POST", "GET"])
+def api_login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+
+        # Check if the user details are present in the talent details endpoint
+        talent_endpoint = "http://52.66.152.129:2021/api/auth/sendTalentDetailsToTestEnvironemnt"
+        talent_response = requests.get(talent_endpoint)
+        if talent_response.status_code == 200:
+            talent_data = talent_response.json()
+            if email in talent_data:  # Assuming email is the unique identifier
+                # Redirect the user directly to the test window
+                return redirect("http://your-test-window-url")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user, remember=False)
+            next_page = request.args.get('next')
+            if next_page and is_safe_url(next_page):
+                return redirect(next_page)
+            return redirect(url_for('student.home') if user.student else url_for('teacher.home'))
+        else:
+            flash("Incorrect email or password. Please try again.", "danger")
+
+    return render_template("login.html", form=form, title="Login")
