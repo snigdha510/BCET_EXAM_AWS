@@ -27,23 +27,12 @@ def home():
 @student.route("/quiz/<int:quiz_id>")
 @login_required
 def quiz(quiz_id):
-    # Check if the current user is a student
-    if current_user.student is None:
-        logout_user()
-        return redirect(url_for('main.welcome'))
-
     # Fetch the quiz from the database
     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
 
     # Check if the quiz has already been submitted
     if quiz in current_user.student.submitted_quiz:
         flash('You have already submitted this quiz!', 'warning')
-        return redirect(url_for('student.home'))
-
-    # Check if the student is allowed to access the quiz
-    teacher_id_list = [teacher.id for teacher in current_user.student.taught_by.all()]
-    if quiz.teacher_id not in teacher_id_list:
-        flash("You are not allowed to access this quiz.", "warning")
         return redirect(url_for('student.home'))
 
     # Check if the quiz is currently active
