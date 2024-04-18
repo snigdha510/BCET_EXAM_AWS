@@ -185,7 +185,7 @@ def create_new_quiz_post_api(tid):
             
             # Clear the HashMap data from the API endpoint
             clear_endpoint = f"http://52.66.152.129:2021/api/auth/clearBcsetQuestionById/{customer_id}_{job_id}"
-            clear_response = requests.post(clear_endpoint)
+            clear_response = requests.get(clear_endpoint)
             clear_response.raise_for_status()
             
             # Success message for sending data to the API
