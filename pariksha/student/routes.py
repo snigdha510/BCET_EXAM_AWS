@@ -8,6 +8,7 @@ import copy
 from sqlalchemy import select
 import requests
 from sqlalchemy.sql import text
+from datetime import datetime
 
 student = Blueprint("student", __name__, url_prefix="/student", template_folder="templates", static_folder="static")
 
@@ -120,9 +121,13 @@ def quiz_post(quiz_id):
         marks_awarded = question.marks if answered == correct_option else 0
         total_marks += marks_awarded
 
-    submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
-    db.session.add(submission)
-    db.session.commit()
+    # submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
+    # submission = submits_quiz.insert().values(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
+
+    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE)"))
+
+    # db.session.add(submission)
+    # db.session.commit()
 
     # Gather additional student details for the API call
     student = User.query.get(current_user.student.id)

@@ -146,14 +146,14 @@ def create_new_quiz_post_api(tid):
             )
             db.session.add(quiz)
             total_marks = 0
-
             for question_data in quiz_data['questions']:
+                #print(question_data)
                 question = Quiz_Questions(
                     question_desc=question_data['question_desc'],
-                    option_1=question_data['option_1'],
-                    option_2=question_data['option_2'],
-                    option_3=question_data['option_3'],
-                    option_4=question_data['option_4'],
+                    option_1=question_data['option_1'] or "",
+                    option_2=question_data['option_2'] or "",
+                    option_3=question_data['option_3'] or "",
+                    option_4=question_data['option_4'] or "",
                     correct_op = question_data['correct_op'],
                     marks=question_data['marks'],
                     quiz=quiz
