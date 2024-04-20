@@ -43,13 +43,25 @@ def quiz(quiz_id):
         return redirect(url_for('student.home'))
 
     # Shuffle questions and options
+    # questions = quiz.questions
+    # shuffled_questions = {question.question_desc: random.sample([
+    #     question.option_1, question.option_2, question.option_3, question.option_4], k=4)
+    #     for question in questions}
+
     questions = quiz.questions
-    shuffled_questions = {question.question_desc: random.sample([
-        question.option_1, question.option_2, question.option_3, question.option_4], k=4)
-        for question in questions}
+    qobs = []
+
+    for question in questions:
+        qobs.append({
+            'question': question.question_desc,
+            'option_1': question.option_1,
+            'option_2': question.option_2,
+            'option_3': question.option_3,
+            'option_4': question.option_4,
+        })
 
     # Render the quiz directly
-    return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, shuffled_questions=shuffled_questions,  questions=questions)
+    return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, qobs=qobs)
 
 
 # @student.route("/quiz/<int:quiz_id>", methods=["POST"])
@@ -104,7 +116,7 @@ def quiz_post(quiz_id):
     total_marks = 0
     for question in questions:
         answered = request.form.get(str(question.question_desc))
-        correct_option = question.correct_answer  # Assuming you have a way to identify the correct answer
+        correct_option = question.correct_op  # Assuming you have a way to identify the correct answer
         marks_awarded = question.marks if answered == correct_option else 0
         total_marks += marks_awarded
 

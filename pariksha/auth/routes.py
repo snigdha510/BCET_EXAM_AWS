@@ -20,7 +20,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-        user = User(name=form.name.data, email=form.email.data, password=hashed_password)
+        user = User(name=form.name.data, email=form.email.data, password=hashed_password, tid=-1)
         if form.acc_type.data == "Student":
             student = Student(user=user)
             db.session.add(user)

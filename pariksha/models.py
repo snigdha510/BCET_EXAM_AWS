@@ -213,6 +213,8 @@ class Quiz_Questions(db.Model):
     option_4 = db.Column(db.String(400),
         nullable = False)
 
+    correct_op = db.Column(db.String(50), nullable=False)
+
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'))
 
 

@@ -21,6 +21,18 @@ pip3 install gunicorn
 /home/ubuntu/BCET_EXAM_AWS/venv/bin/gunicorn --bind 0.0.0.0:2028 "wsgi:app"
 ```
 
+### Gunicorn Config
+sudo mkdir /var/log/gunicorn
+gunicorn_conf.py
+```
+bind = '0.0.0.0:2028'
+worker_class = 'sync'
+loglevel = 'debug'
+accesslog = '/var/log/gunicorn/access_log_pariksha'
+acceslogformat ="%(h)s %(l)s %(u)s %(t)s %(r)s %(s)s %(b)s %(f)s %(a)s"
+errorlog =  '/var/log/gunicorn/access_log_pariksha'
+```
+
 ### Create the Systemd Service
 sudo nano /etc/systemd/system/pariksha.service
 ```
@@ -32,7 +44,7 @@ User=ubuntu
 Group=www-data
 WorkingDirectory=/home/ubuntu/BCET_EXAM_AWS
 Environment="PATH=/home/ubuntu/BCET_EXAM_AWS/venv/bin"
-ExecStart=/home/ubuntu/BCET_EXAM_AWS/venv/bin/gunicorn --workers 3 --bind unix:pariksha.sock -m 007 "wsgi:app"
+ExecStart=/home/ubuntu/BCET_EXAM_AWS/venv/bin/gunicorn -c "/home/ubuntu/BCET_EXAM_AWS/gunicorn_conf.py" --workers 3 --bind unix:pariksha.sock -m 007 "wsgi:app"
 [Install]
 WantedBy=multi-user.target
 ```
@@ -48,7 +60,7 @@ sudo nano /etc/nginx/sites-available/default
 ```
 server { 
 	listen 2028; 
-	server_name 52.66.152.129; 
+	server_name 52.66.152.129; `
 
 	location / { 
 		include proxy_params;

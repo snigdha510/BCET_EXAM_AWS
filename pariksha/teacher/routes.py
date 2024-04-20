@@ -68,6 +68,7 @@ def create_new_quiz_post():
                 option_2=question_data['option_2'],
                 option_3=question_data['option_3'],
                 option_4=question_data['option_4'],
+                correct_op=question_data['correct_op'],
                 marks=question_data['marks'],
                 quiz=quiz
                 )
@@ -153,6 +154,7 @@ def create_new_quiz_post_api(tid):
                     option_2=question_data['option_2'],
                     option_3=question_data['option_3'],
                     option_4=question_data['option_4'],
+                    correct_op = question_data['correct_op'],
                     marks=question_data['marks'],
                     quiz=quiz
                 )
