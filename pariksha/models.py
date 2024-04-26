@@ -224,7 +224,9 @@ submits_quiz = db.Table('submits_quiz',
     db.Column('quiz_id', db.Integer, db.ForeignKey('quiz.id')),
     db.Column('time_submitted', db.DateTime, nullable = False, default = datetime.now),
     db.Column('marks', db.Integer),
-    db.Column('terminated', db.Boolean, nullable=False, default=False)) 
+    db.Column('terminated', db.Boolean, nullable=False, default=False),
+    db.Column('percentile', db.Float, nullable=False))
+
 
 
 

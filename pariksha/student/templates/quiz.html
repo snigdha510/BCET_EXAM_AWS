@@ -151,55 +151,32 @@
 
     <form method="POST" id="quiz-form">
         
-        {% for Q in qobs %} 
-            <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
-                <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
-                    <h2>Q : {{ Q['question'] }}</h2>
-                </div>
 
-                <div class="container" style="padding:10px; margin-top:20px; border-radius:20px; background-color:lightpink;">
-                    <div style="margin-top: 25px; padding:10px;">
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ Q['question'] }}">
-                            <label class="form-check-label" for="{{ Q['question'] }}" style="margin-left: 30px; font-size:x-large;">
-                                <h3>A: {{Q['option_1']}}</h3>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="margin-top: 25px; padding:10px;">
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ Q['question'] }}">
-                            <label class="form-check-label" for="{{ Q['question'] }}" style="margin-left: 30px; font-size:x-large;">
-                                <h3>B: {{Q['option_2']}}</h3>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="margin-top: 25px; padding:10px;">
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ Q['question'] }}">
-                            <label class="form-check-label" for="{{ Q['question'] }}" style="margin-left: 30px; font-size:x-large;">
-                                <h3>C: {{Q['option_3']}}</h3>
-                            </label>
-                        </div>
-                    </div>
-                    <div style="margin-top: 25px; padding:10px;">
-                        <div class="custom-control custom-radio custom-control-inline">
-                            <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ Q['question'] }}">
-                            <label class="form-check-label" for="{{ Q['question'] }}" style="margin-left: 30px; font-size:x-large;">
-                                <h3>D: {{Q['option_4']}}</h3>
-                            </label>
-                        </div>
+        <div class='jumbotron' style="margin-top: 50px; padding:20px; background-color:rgba(128, 128, 128, 0.116); border-radius:20px;">
+            <div class="container" style="background-color:plum;  margin-top:10px; border-radius:20px; padding:35px; margin-top:5px;">
+                <h2>Q : {{ ques }}</h2>
+            </div>
+
+            <div class="container" style="padding:10px; margin-top:20px; border-radius:20px; background-color:lightpink;">
+                {% for opts in questions[ques] %}
+                <div style="margin-top: 25px; padding:10px;">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input class="form-check-input" type="radio" value="{{ opts }}" name="{{ ques }}">
+                        <label class="form-check-label" for="{{ ques }}" style="margin-left: 30px; font-size:x-large;">
+                            {{ opts }}
+                        </label>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
         
         <!-- Submit button -->
         <div class="container">
             <div class="row justify-content-end">
                 <div class="col-6 col-md-4"></div>
                 <div class="col-auto" style="padding: 25px;">
-                    <input type="submit" value="Submit" style="padding: 10px; width:200px; background-color:#e43c5c; color:white; font-size:x-large;" class="zoom" name="submit" id="submit"  />
+                    <input type="submit" value="Submit" style="padding: 10px; width:200px; background-color:#e43c5c; color:white; font-size:x-large;" class="zoom" name="submit" id="submit" disabled />
                 </div>
             </div>
         </div>

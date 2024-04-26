@@ -121,10 +121,17 @@ def quiz_post(quiz_id):
         marks_awarded = question.marks if answered == correct_option else 0
         total_marks += marks_awarded
 
+    all_submissions = submits_quiz.query.filter_by(quiz_id=quiz_id).all()
+    sorted_submissions = sorted(all_submissions, key=lambda x: x.marks, reverse=True)
+    total_submissions = len(sorted_submissions)
+    current_user_percentile = (sum(1 for s in sorted_submissions if s.marks > total_marks) / total_submissions) * 100
+    
+    
+
     # submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
     # submission = submits_quiz.insert().values(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
 
-    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE)"))
+    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {current_user_percentile})"))
 
     # db.session.add(submission)
     # db.session.commit()
@@ -135,7 +142,8 @@ def quiz_post(quiz_id):
         "id": student.id,
         "talentName": student.name,
         "email": student.email,
-        "score": total_marks
+        "score": total_marks,
+        "percentile":current_user_percentile
     }
 
     send_results_to_api(quiz.teacher_id, quiz_id, [student_details])
@@ -143,11 +151,14 @@ def quiz_post(quiz_id):
     flash(f'Your response for Quiz : {quiz.title} has been submitted', 'success')
     return redirect(url_for('student.home'))
 
-def send_results_to_api(teacher_id, quiz_id, student_results):
+
+
+
+def send_results_to_api(teacher_id, quiz_id, student_details):
     data = {
         "user": {"id": teacher_id},
         "enterpriseJobDetailsModel": {"id": quiz_id},
-        "listResultScoreModels": student_results
+        "listResultScoreModels": student_details
     }
     api_url = 'http://52.66.152.129:2021/api/talentdemandmvp/saveAllTalentscore'  # Replace with actual API endpoint
     try:
