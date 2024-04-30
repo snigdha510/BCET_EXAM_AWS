@@ -8,10 +8,11 @@ from pariksha.auth.utils import send_reset_email, send_verification_email
 from pariksha import bcrypt, db
 from urllib.parse import urlparse, urljoin
 import requests
+from flask_cors import CORS
 
 main = Blueprint("main",__name__,template_folder="templates",static_folder="static")
 
-# CORS(main, supports_credentials=True) #Registering CORS
+CORS(main, supports_credentials=True) #Registering CORS
 
 @main.route("/")
 def welcome():
