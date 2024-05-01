@@ -52,14 +52,17 @@ def quiz(quiz_id):
     questions = quiz.questions
     qobs = []
 
+    qid = 0
     for question in questions:
         qobs.append({
+            'qid': qid,
             'question': question.question_desc,
             'option_1': question.option_1,
             'option_2': question.option_2,
             'option_3': question.option_3,
             'option_4': question.option_4,
         })
+        qid += 1
 
     # Render the quiz directly
     return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, qobs=qobs)
@@ -115,12 +118,14 @@ def quiz_post(quiz_id):
 
     questions = quiz.questions
     total_marks = 0
+    qid = 0
     for question in questions:
-        answered = request.form.get(str(question.question_desc))
+        answered = request.form.get(f"question_{qid}")
         correct_option = question.correct_op  # Assuming you have a way to identify the correct answer
         print(f"ANSWERED ===> {answered} | {question.correct_op}")
-        marks_awarded = question.marks if answered == correct_option else 0
+        marks_awarded = 1 if answered == correct_option else 0
         total_marks += marks_awarded
+        qid += 1
 
     # all_submissions = submits_quiz.query.filter_by(quiz_id=quiz_id).all()
     # all_submissions = db.session.execute(text(f'SELECT * FROM submits_quiz WHERE quiz_id={quiz_id}')).mappings().all()
@@ -200,12 +205,13 @@ def view_performance():
         return redirect(url_for('teacher.home'))
     student = current_user.student
     quiz_submitted_query = tuple(
-        db.session.execute(f'SELECT * FROM submits_quiz WHERE student_id = {student.id};'))
+        db.session.execute(text(f'SELECT * FROM submits_quiz WHERE student_id = {student.id};'))
+    )
     quiz_submitted = list()
 
     for quiz in quiz_submitted_query:
         quiz_title = Quiz.query.filter_by(id=quiz[1]).first().title
-        all_marks = list(db.session.execute(f'SELECT marks FROM submits_quiz WHERE quiz_id = {quiz[1]}'))
+        all_marks = list(db.session.execute(text(f'SELECT marks FROM submits_quiz WHERE quiz_id = {quiz[1]}')))
         all_marks = [x[0] for x in all_marks]
         quiz_submitted.append(dict(quiz_title=quiz_title, marks=quiz[3], all_marks=all_marks))
     graph = bar_graph(quiz_submitted)
@@ -227,7 +233,7 @@ def view_result():
     for quiz in quiz_submitted_query:
         quiz_title = Quiz.query.filter_by(id=quiz[1]).first().title
         total_marks = Quiz.query.filter_by(id=quiz[1]).first().marks
-        quiz_submitted.append(dict(title=quiz_title, marks=quiz[3], total_marks=total_marks))
+        quiz_submitted.append(dict(title=quiz_title, marks=quiz[3], total_marks=25))
 
     quiz_exists = bool(len(quiz_submitted))
     return render_template('view_result.html', quiz_list=quiz_submitted, title="View Result", quiz_exists=quiz_exists)
