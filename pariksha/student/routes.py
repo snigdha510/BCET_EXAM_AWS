@@ -118,20 +118,25 @@ def quiz_post(quiz_id):
     for question in questions:
         answered = request.form.get(str(question.question_desc))
         correct_option = question.correct_op  # Assuming you have a way to identify the correct answer
+        print(f"ANSWERED ===> {answered} | {question.correct_op}")
         marks_awarded = question.marks if answered == correct_option else 0
         total_marks += marks_awarded
 
-    all_submissions = submits_quiz.query.filter_by(quiz_id=quiz_id).all()
-    sorted_submissions = sorted(all_submissions, key=lambda x: x.marks, reverse=True)
-    total_submissions = len(sorted_submissions)
-    current_user_percentile = (sum(1 for s in sorted_submissions if s.marks > total_marks) / total_submissions) * 100
-    
-    
+    # all_submissions = submits_quiz.query.filter_by(quiz_id=quiz_id).all()
+    # all_submissions = db.session.execute(text(f'SELECT * FROM submits_quiz WHERE quiz_id={quiz_id}')).mappings().all()
+    # print(f"ALL SUBMISSIONS ======> {all_submissions}")
 
+    # sorted_submissions = sorted(all_submissions, key=lambda x: x.marks, reverse=True)
+    # total_submissions = len(sorted_submissions)
+
+    # current_user_percentile = (sum(1 for s in sorted_submissions if s.marks > total_marks) / total_submissions) * 100
+    
+    
     # submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
     # submission = submits_quiz.insert().values(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
 
-    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {current_user_percentile})"))
+    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {0.0})"))
+    db.session.commit()
 
     # db.session.add(submission)
     # db.session.commit()
@@ -143,7 +148,7 @@ def quiz_post(quiz_id):
         "talentName": student.name,
         "email": student.email,
         "score": total_marks,
-        "percentile":current_user_percentile
+        "percentile":0.0
     }
 
     send_results_to_api(quiz.teacher_id, quiz_id, [student_details])
