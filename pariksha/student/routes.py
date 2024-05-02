@@ -27,11 +27,11 @@ def home():
         return "unauthorized access attempted you have been logged out"
     return render_template("student_home.html", quotes=quotes, title="Home")
 
-@student.route("/quiz/<int:quiz_id>")
+@student.route("/quiz/<int:job_id>")
 @login_required
-def quiz(quiz_id):
+def quiz(job_id):
     # Fetch the quiz from the database
-    quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
+    quiz = Quiz.query.filter_by(job_id=job_id).first_or_404()
 
     # Check if the quiz has already been submitted
     if quiz in current_user.student.submitted_quiz:
@@ -65,7 +65,7 @@ def quiz(quiz_id):
         qid += 1
 
     # Render the quiz directly
-    return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, qobs=qobs)
+    return render_template('quiz.html', title=quiz.title, quiz_id=job_id, qobs=qobs)
 
 @student.route("/quiz/<int:job_id>", methods=["POST"])
 @login_required
