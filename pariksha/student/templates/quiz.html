@@ -297,6 +297,20 @@
                 $('#submit').attr('disabled', false);
             }
         }).change();
+
+        // Prompt user when attempting to leave the page
+        window.addEventListener('beforeunload', function (e) {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        // Detect when the user switches tabs and automatically submit the quiz
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'hidden') {
+                $('#quiz-form').submit();
+    }
+});
+
     </script>
 </div>
 <footer class="page-footer blue text-center " style="padding: 15px; background-color:rgba(128, 128, 128, 0.199);">
