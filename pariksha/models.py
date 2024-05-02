@@ -163,6 +163,9 @@ class Quiz(db.Model):
     id = db.Column(db.Integer,
         primary_key = True)
 
+    job_id = db.Column(db.Integer,
+        nullable = False)
+
     title = db.Column(db.String(255),
         nullable = False)
     
@@ -226,12 +229,3 @@ submits_quiz = db.Table('submits_quiz',
     db.Column('marks', db.Integer),
     db.Column('terminated', db.Boolean, nullable=False, default=False),
     db.Column('percentile', db.Float, nullable=False))
-
-
-
-
-
-
-
-
-

@@ -33,9 +33,6 @@ def quiz(quiz_id):
     # Fetch the quiz from the database
     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
 
-    student = User.query.get(current_user.id)
-    print(f"STUUUUUDEEEENT ===> {student.name}")
-
     # Check if the quiz has already been submitted
     if quiz in current_user.student.submitted_quiz:
         flash('You have already submitted this quiz!', 'warning')
@@ -70,10 +67,10 @@ def quiz(quiz_id):
     # Render the quiz directly
     return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, qobs=qobs)
 
-@student.route("/quiz/<int:quiz_id>", methods=["POST"])
+@student.route("/quiz/<int:job_id>", methods=["POST"])
 @login_required
-def quiz_post(quiz_id):
-    quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
+def quiz_post(job_id):
+    quiz = Quiz.query.filter_by(id=job_id).first_or_404()
     if not quiz.active:
         flash('QUIZ NOT SUBMITTED: The quiz you are trying to submit has expired', 'danger')
         return redirect(url_for('student.home'))
@@ -105,7 +102,7 @@ def quiz_post(quiz_id):
     # submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
     # submission = submits_quiz.insert().values(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
 
-    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {quiz_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {0.0})"))
+    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {job_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {0.0})"))
     db.session.commit()
 
     # db.session.add(submission)
@@ -121,16 +118,16 @@ def quiz_post(quiz_id):
         "percentile":0.0
     }
 
-    send_results_to_api(quiz.teacher_id, quiz_id, [student_details])
+    send_results_to_api(quiz.teacher_id, job_id, [student_details])
 
     flash(f'Your response for Quiz : {quiz.title} has been submitted', 'success')
     return redirect(url_for('student.home'))
 
 
-def send_results_to_api(teacher_id, quiz_id, student_details):
+def send_results_to_api(teacher_id, job_id, student_details):
     data = {
         "user": {"id": teacher_id},
-        "enterpriseJobDetailsModel": {"id": quiz_id},
+        "enterpriseJobDetailsModel": {"id": job_id},
         "listResultScoreModels": student_details
     }
     print('<<<<<<<<send_results_to_api>>>>>>>>>>')
@@ -227,9 +224,9 @@ def add_teacher():
         flash('Teacher has been added', 'success')
         return redirect(url_for('student.add_teacher'))
 
-@student.route("/quiz/<int:quiz_id>", methods=["GET"])
-def attempt_quiz(quiz_id):
-    # Construct the URL to redirect to
-    url = url_for('student.quiz', quiz_id=quiz_id)
-    # Open a new window with the constructed URL and fullscreen options
-    return f"<script>window.open('{url}', '_blank', 'fullscreen=yes');</script>"
+# @student.route("/quiz/<int:quiz_id>", methods=["GET"])
+# def attempt_quiz(quiz_id):
+#     # Construct the URL to redirect to
+#     url = url_for('student.quiz', quiz_id=quiz_id)
+#     # Open a new window with the constructed URL and fullscreen options
+#     return f"<script>window.open('{url}', '_blank', 'fullscreen=yes');</script>"
