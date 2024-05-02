@@ -70,7 +70,7 @@ def quiz(job_id):
 @student.route("/quiz/<int:job_id>", methods=["POST"])
 @login_required
 def quiz_post(job_id):
-    quiz = Quiz.query.filter_by(id=job_id).first_or_404()
+    quiz = Quiz.query.filter_by(job_id=job_id).first()
     if not quiz.active:
         flash('QUIZ NOT SUBMITTED: The quiz you are trying to submit has expired', 'danger')
         return redirect(url_for('student.home'))
@@ -102,7 +102,7 @@ def quiz_post(job_id):
     # submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
     # submission = submits_quiz.insert().values(student_id=current_user.student.id, quiz_id=quiz_id, marks=total_marks)
 
-    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {job_id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {0.0})"))
+    db.session.execute(text(f"INSERT INTO submits_quiz (student_id, quiz_id, marks, time_submitted, terminated, percentile) VALUES ({current_user.student.id}, {quiz.id}, {total_marks}, {datetime.now().year}-{datetime.now().month}-{datetime.now().day}, FALSE, {0.0})"))
     db.session.commit()
 
     # db.session.add(submission)

@@ -89,7 +89,7 @@ def create_new_quiz_post_api(tid, jid):
             quiz.marks = total_marks
             db.session.commit()
 
-            quiz_access_url = url_for('student.quiz', quiz_id=jid, _external=True)
+            quiz_access_url = url_for('student.quiz', job_id=jid,_external=True)
 
             # Prepare data for sending to the API endpoint
             payload = {
