@@ -298,17 +298,16 @@
             }
         }).change();
 
-        // Prompt user when attempting to leave the page
-        window.addEventListener('beforeunload', function (e) {
-            e.preventDefault();
-            e.returnValue = '';
-        });
 
         // Detect when the user switches tabs and automatically submit the quiz
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === 'hidden') {
                 $('#quiz-form').submit();
     }
+
+    $(window).blur(function() {
+        alert('You are not allowed to leave the test page otherwise the test will get submitted automatically');
+});
 });
 
     </script>
