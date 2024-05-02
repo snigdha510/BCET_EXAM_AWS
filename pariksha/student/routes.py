@@ -9,6 +9,8 @@ from sqlalchemy import select
 import requests
 from sqlalchemy.sql import text
 from datetime import datetime
+from pariksha import Config
+import json
 
 student = Blueprint("student", __name__, url_prefix="/student", template_folder="templates", static_folder="static")
 
@@ -31,7 +33,8 @@ def quiz(quiz_id):
     # Fetch the quiz from the database
     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
 
-    print(current_user.student)
+    student = User.query.get(current_user.id)
+    print(f"STUUUUUDEEEENT ===> {student.name}")
 
     # Check if the quiz has already been submitted
     if quiz in current_user.student.submitted_quiz:
@@ -66,44 +69,6 @@ def quiz(quiz_id):
 
     # Render the quiz directly
     return render_template('quiz.html', title=quiz.title, quiz_id=quiz_id, qobs=qobs)
-
-
-# @student.route("/quiz/<int:quiz_id>", methods=["POST"])
-# @login_required
-# def quiz_post(quiz_id):
-
-#     quiz = Quiz.query.filter_by(id=quiz_id).first_or_404()
-#     if not quiz.active:
-#         flash('QUIZ NOT SUBMITTED The quiz you are trying to submit has expired', 'danger')
-#         return redirect(url_for('student.home'))
-#     if quiz in current_user.student.submitted_quiz:
-#         flash('You have already submitted this quiz!!', 'warning')
-#         return redirect(url_for('student.home'))
-#     questions = quiz.questions
-#     orig_questions = dict()
-#     orig_questions_marks = dict()
-#     for question in questions:
-#         orig_questions[str(question.question_desc)] = [str(question.option_1), str(question.option_2),
-#                                                        str(question.option_3), str(question.option_4)]
-#         orig_questions_marks[str(question.question_desc)] = question.marks
-
-#     questions = copy.deepcopy(orig_questions)
-
-#     marks = 0
-#     for i in questions.keys():
-#         answered = request.form.get(i)
-#         if answered is None:  # If question is not answered
-#             marks = 0
-#             break
-#         if orig_questions[i][0] == answered:
-#             marks += orig_questions_marks[i]
-
-#     submission = submits_quiz(student_id=current_user.student.id, quiz_id=quiz_id, marks=marks)
-#     current_user.student.submitted_quiz.append(quiz)
-#     db.session.add(submission)
-#     db.session.commit()
-#     flash(f'Your response for Quiz : {quiz.title} has been submitted', 'success')
-#     return redirect(url_for('student.home'))
 
 @student.route("/quiz/<int:quiz_id>", methods=["POST"])
 @login_required
@@ -147,9 +112,9 @@ def quiz_post(quiz_id):
     # db.session.commit()
 
     # Gather additional student details for the API call
-    student = User.query.get(current_user.student.id)
+    student = User.query.get(current_user.id)
     student_details = {
-        "id": student.id,
+        "id": student.tid,
         "talentName": student.name,
         "email": student.email,
         "score": total_marks,
@@ -162,15 +127,16 @@ def quiz_post(quiz_id):
     return redirect(url_for('student.home'))
 
 
-
-
 def send_results_to_api(teacher_id, quiz_id, student_details):
     data = {
         "user": {"id": teacher_id},
         "enterpriseJobDetailsModel": {"id": quiz_id},
         "listResultScoreModels": student_details
     }
-    api_url = 'http://52.66.152.129:2021/api/talentdemandmvp/saveAllTalentscore'  # Replace with actual API endpoint
+    print('<<<<<<<<send_results_to_api>>>>>>>>>>')
+    print(json.dumps(data))
+    print('>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<')
+    api_url = f'{Config().getBackendURL()}/api/talentdemandmvp/saveAllTalentscore'  # Replace with actual API endpoint
     try:
         response = requests.post(api_url, json=data)
         response.raise_for_status()  # This will raise an exception for HTTP errors
